@@ -19,22 +19,26 @@ Contact: renatoaz@gmail.com
 
 """
 
+import random
 import numpy as np
+from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-import random
-from datetime import datetime
 
-def generate_tradeoff_plot(num_features, num_samples=100, seed=random.seed(datetime.now().timestamp())):
+
+def generate_tradeoff_plot(num_models, num_samples=500, num_features=100, 
+                           num_selected=5, seed=random.seed(datetime.now().timestamp())):
     # generate random dataset
     np.random.seed(seed)
-    X = np.random.randn(num_samples, num_features)
-    y = np.random.randint(2, size=num_samples)
-    y = y + 0.1*(np.random.randn(num_samples) + np.dot(X[:,:3], [0.5, -1, 0.5]))
-    y = np.where(y>0, 1, 0)
+    
+    X = np.random.multivariate_normal(mean=np.zeros(num_features), cov=np.eye(num_features), size=num_samples)
+    selected_features = np.random.randint(0, num_features, size=num_selected)
+    true_coefs = np.random.uniform(-1, 1, size=num_selected)
+    y = np.round(X[:, selected_features].dot(true_coefs) + np.random.normal(scale=0.5, size=num_samples))
+    y = np.where(y > 0.5, 1, 0)
     
     # split data into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random.seed(datetime.now().timestamp()))
@@ -47,7 +51,7 @@ def generate_tradeoff_plot(num_features, num_samples=100, seed=random.seed(datet
     # define trade-off points as (accuracy, complexity) tuples
     model_fits = []
     i=0
-    for c in np.logspace(-5, 5, 100):
+    for c in np.logspace(-5, 5, num_models):
         lr = LogisticRegression(penalty='l1', C=c, solver='liblinear', random_state=i)
         i+=1
         lr.fit(X_train_std, y_train)
@@ -92,7 +96,7 @@ def generate_tradeoff_plot(num_features, num_samples=100, seed=random.seed(datet
     # assign colors to each trade-off point based on dominance rank     
     colors = []
     for i in range(0,len(model_fits)):
-        color = get_color(ranks[i], len(model_fits))
+        color = get_color(ranks[i], max(ranks))
         # Convert the color to a hexadecimal string
         hex_color = mcolors.to_hex(color)
         colors.append(hex_color)
@@ -103,5 +107,3 @@ def generate_tradeoff_plot(num_features, num_samples=100, seed=random.seed(datet
     plt.ylabel('Complexity')
     plt.legend(['Number of selected features: {}'.format(len(selected_features))])
     plt.show()
-    
-generate_tradeoff_plot(30)
