@@ -107,3 +107,5 @@ def generate_tradeoff_plot(num_models, num_samples=500, num_features=100,
     plt.ylabel('Complexity')
     plt.legend(['Number of selected features: {}'.format(len(selected_features))])
     plt.show()
+
+generate_tradeoff_plot(50,num_samples=1000, num_features=20, num_selected=20)
