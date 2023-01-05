@@ -15,7 +15,7 @@ the points based on their dominance class. This allows for the visualization of 
 between accuracy and complexity for different dominance classes.
 
 LinkedIn: https://www.linkedin.com/in/crbazevedo/
-Contact: carlos.azevedo@bain.com
+Contact: renatoaz@gmail.com
 
 """
 
